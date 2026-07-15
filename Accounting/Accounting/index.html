@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saro Accounting - Agency Admin Panel</title>
+    <!-- Google Fonts: Inter & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+    <!-- Login Screen overlay -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-card glassmorphism animate-fade-in">
+            <div class="login-header">
+                <div class="logo-container">
+                    <i data-lucide="trending-up" class="logo-icon text-neon"></i>
+                    <span class="logo-text">Saro<span class="text-accent">Finance</span></span>
+                </div>
+                <h2>Agency Accounting Portal</h2>
+                <p>Enter your credentials to access the admin dashboard</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i data-lucide="mail"></i>
+                        <input type="email" id="login-email" required placeholder="accounting@sarobynayasathi.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-with-icon">
+                        <i data-lucide="lock"></i>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                </div>
+                <div id="login-error" class="error-msg hide">
+                    <i data-lucide="alert-circle"></i>
+                    <span>Invalid email or password!</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span>Sign In</span>
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Application (Hidden initially until auth is verified) -->
+    <div id="app-container" class="app-container hide">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i data-lucide="trending-up" class="logo-icon text-neon"></i>
+                    <span class="logo-text">Saro<span class="text-accent">Finance</span></span>
+                </div>
+                <div class="agency-tag">Digital Marketing Agency</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="#" class="nav-link active" data-target="sec-dashboard">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" data-target="sec-clients">
+                            <i data-lucide="users"></i>
+                            <span>Clients & Payments</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" data-target="sec-expenses">
+                            <i data-lucide="wallet"></i>
+                            <span>Expenses</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" data-target="sec-salaries">
+                            <i data-lucide="contact-2"></i>
+                            <span>Employees & Salaries</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" data-target="sec-assets">
+                            <i data-lucide="laptop"></i>
+                            <span>Assets Registry</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" data-target="sec-capital">
+                            <i data-lucide="landmark"></i>
+                            <span>Capital & Investments</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" data-target="sec-backup">
+                            <i data-lucide="database"></i>
+                            <span>Backup & Data</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">A</div>
+                    <div class="user-info">
+                        <div class="user-name">Admin Portal</div>
+                        <div class="user-role">accounting@saro...</div>
+                    </div>
+                </div>
+                <button id="btn-logout" class="btn btn-logout">
+                    <i data-lucide="log-out"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Top bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 id="view-title">Dashboard Overview</h1>
+                    <p class="current-date" id="header-date"></p>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle Theme">
+                        <i data-lucide="sun" id="sun-icon"></i>
+                        <i data-lucide="moon" id="moon-icon" class="hide"></i>
+                    </button>
+                    <div class="status-badge online">
+                        <span class="status-dot"></span>
+                        <span>Local DB Active</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <section id="sec-dashboard" class="view-section active">
+                <!-- KPI Summary cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card glassmorphism border-accent">
+                        <div class="kpi-icon-container bg-opacity-accent">
+                            <i data-lucide="trending-up" class="text-accent"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3>Monthly Recurring Revenue</h3>
+                            <div class="kpi-value" id="kpi-mrr">Rs. 0.00</div>
+                            <p class="kpi-change text-success"><i data-lucide="trending-up"></i> Monthly billing volume</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card glassmorphism border-success">
+                        <div class="kpi-icon-container bg-opacity-success">
+                            <i data-lucide="arrow-up-right" class="text-success"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3>Total Revenue (YTD)</h3>
+                            <div class="kpi-value" id="kpi-revenue">Rs. 0.00</div>
+                            <p class="kpi-change text-success"><i data-lucide="check-circle-2"></i> Logged client income</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card glassmorphism border-danger">
+                        <div class="kpi-icon-container bg-opacity-danger">
+                            <i data-lucide="arrow-down-left" class="text-danger"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3>Total Operating Costs</h3>
+                            <div class="kpi-value" id="kpi-expenses">Rs. 0.00</div>
+                            <p class="kpi-change text-danger"><i data-lucide="alert-triangle"></i> Expenses + Salaries</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card glassmorphism border-info">
+                        <div class="kpi-icon-container bg-opacity-info">
+                            <i data-lucide="gem" class="text-info"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3>Net Asset Value</h3>
+                            <div class="kpi-value" id="kpi-assets">Rs. 0.00</div>
+                            <p class="kpi-change text-info"><i data-lucide="shield"></i> Total agency assets</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card glassmorphism border-warning">
+                        <div class="kpi-icon-container bg-opacity-warning">
+                            <i data-lucide="landmark" class="text-warning"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3>Available Cash Balance</h3>
+                            <div class="kpi-value" id="kpi-cash-balance">Rs. 0.00</div>
+                            <p class="kpi-change text-warning"><i data-lucide="wallet"></i> Total treasury cash</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Board & Quick Action Grid -->
+                <div class="dashboard-grid">
+                    <!-- Billing Alert Center -->
+                    <div class="card glassmorphism flex-2">
+                        <div class="card-header">
+                            <div>
+                                <h2>Billing & Invoice Alerts</h2>
+                                <p>Clients with upcoming or overdue payments</p>
+                            </div>
+                            <span class="badge badge-warning" id="alert-count-badge">0 Alerts</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Client</th>
+                                            <th>Period</th>
+                                            <th>Amount</th>
+                                            <th>Due Date</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-alerts-tbody">
+                                        <!-- Dynamically injected -->
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">No billing alerts detected. All up to date!</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- P&L and Breakdowns -->
+                    <div class="card glassmorphism flex-1">
+                        <div class="card-header">
+                            <h2>Net Profit Margin</h2>
+                            <p>Revenue vs Operational Costs</p>
+                        </div>
+                        <div class="card-content chart-container-wrapper">
+                            <div class="pl-summary">
+                                <div class="pl-bar-container">
+                                    <div class="pl-bar-fill" id="pl-margin-bar" style="width: 0%"></div>
+                                </div>
+                                <div class="pl-stats">
+                                    <span class="text-success" id="pl-revenue-label">Rs. 0</span>
+                                    <span class="divider">vs</span>
+                                    <span class="text-danger" id="pl-expenses-label">Rs. 0</span>
+                                </div>
+                                <div class="pl-percentage" id="pl-margin-percentage">0% Profit Margin</div>
+                            </div>
+                            <canvas id="chart-pl-trend"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Distribution Charts -->
+                <div class="dashboard-grid mt-4">
+                    <div class="card glassmorphism flex-1">
+                        <div class="card-header">
+                            <h2>Operating Expenses Breakdown</h2>
+                            <p>Categorized spending allocation</p>
+                        </div>
+                        <div class="card-content chart-container">
+                            <canvas id="chart-expenses-breakdown"></canvas>
+                        </div>
+                    </div>
+                    <div class="card glassmorphism flex-1">
+                        <div class="card-header">
+                            <h2>Recent Activity Feed</h2>
+                            <p>Latest transactions and billing updates</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="activity-feed" id="activity-feed-list">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clients View -->
+            <section id="sec-clients" class="view-section">
+                <div class="section-actions">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="client-search" placeholder="Search clients by name, service...">
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-client">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Add New Client</span>
+                    </button>
+                </div>
+
+                <div class="card glassmorphism mt-4">
+                    <div class="card-header">
+                        <h2>Active Clients & Subscription Cycles</h2>
+                        <p>Track client monthly payment plans, starting dates, and billing periods</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Company / Client</th>
+                                        <th>Service Category</th>
+                                        <th>Start Date</th>
+                                        <th>Monthly Fee (NPR)</th>
+                                        <th>1st Month Payment</th>
+                                        <th>2nd Month Payment</th>
+                                        <th>Next Billing Due</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-tbody">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Expenses View -->
+            <section id="sec-expenses" class="view-section">
+                <div class="section-actions">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="expense-search" placeholder="Search expenses by category, vendor...">
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-expense">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Log Expense</span>
+                    </button>
+                </div>
+
+                <div class="card glassmorphism mt-4">
+                    <div class="card-header">
+                        <h2>Agency Operating Expenses</h2>
+                        <p>Keep logs of advertising campaigns, software subscriptions, office rents, and tools</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Expense Category</th>
+                                        <th>Description</th>
+                                        <th>Amount (NPR)</th>
+                                        <th>Payment Source</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenses-tbody">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Employees View -->
+            <section id="sec-salaries" class="view-section">
+                <div class="section-actions">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="employee-search" placeholder="Search employees by name, role...">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="btn-add-employee">
+                            <i data-lucide="user-plus"></i>
+                            <span>Register Employee</span>
+                        </button>
+                        <button class="btn btn-success" id="btn-pay-salaries">
+                            <i data-lucide="banknote"></i>
+                            <span>Execute Payroll</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid mt-4">
+                    <!-- Employees List -->
+                    <div class="card glassmorphism flex-2">
+                        <div class="card-header">
+                            <h2>Employee Registry & Base Salaries</h2>
+                            <p>Manage staff details, department roles, and agreed monthly base salary</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee Name</th>
+                                            <th>Role / Department</th>
+                                            <th>Base Salary (NPR)</th>
+                                            <th>Status</th>
+                                            <th>Last Paid Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="employees-tbody">
+                                        <!-- Injected dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payroll Ledger -->
+                    <div class="card glassmorphism flex-1">
+                        <div class="card-header">
+                            <h2>Payroll Ledger</h2>
+                            <p>Recent salary transaction logs</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="activity-feed scrollable-feed" id="payroll-feed-list">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Assets View -->
+            <section id="sec-assets" class="view-section">
+                <div class="section-actions">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="asset-search" placeholder="Search assets...">
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-asset">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Add Asset</span>
+                    </button>
+                </div>
+
+                <div class="card glassmorphism mt-4">
+                    <div class="card-header">
+                        <h2>Agency Capital Assets</h2>
+                        <p>Track hardware equipment, perpetual software licenses, office fittings, and historical depreciation rates</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Asset Name</th>
+                                        <th>Purchase Date</th>
+                                        <th>Original Cost (NPR)</th>
+                                        <th>Depreciation Rate (Yr)</th>
+                                        <th>Age (Months)</th>
+                                        <th>Current Net Value</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assets-tbody">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Capital & Investments View -->
+            <section id="sec-capital" class="view-section">
+                <div class="section-actions">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="capital-search" placeholder="Search investment records...">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" id="btn-edit-opening-balance">
+                            <i data-lucide="edit-3"></i>
+                            <span>Set Opening Balance</span>
+                        </button>
+                        <button class="btn btn-primary" id="btn-add-investment">
+                            <i data-lucide="plus-circle"></i>
+                            <span>Log Investment</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid mt-4">
+                    <!-- Equity Summary -->
+                    <div class="card glassmorphism flex-1">
+                        <div class="card-header">
+                            <h2>Capital Structure</h2>
+                            <p>Initial cash and equity funding overview</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="payroll-summary-block">
+                                <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <span>Opening Cash Balance:</span>
+                                    <strong id="cap-opening-val">Rs. 0.00</strong>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <span>Total Capital Injections:</span>
+                                    <strong class="text-success" id="cap-injections-val">Rs. 0.00</strong>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <span>Total Outward Investments:</span>
+                                    <strong class="text-danger" id="cap-outward-val">Rs. 0.00</strong>
+                                </div>
+                                <div class="row divider-row" style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px;">
+                                    <span>Net Capital Base:</span>
+                                    <strong class="text-accent" id="cap-net-val">Rs. 0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cashflow Summary Equation -->
+                    <div class="card glassmorphism flex-1">
+                        <div class="card-header">
+                            <h2>Cash Balance Equation</h2>
+                            <p>How the current treasury balance is derived</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="payroll-summary-block">
+                                <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span>Opening Balance (Starting):</span>
+                                    <span id="eq-opening">Rs. 0.00</span>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span>+ Total Paid Revenue (Operating):</span>
+                                    <span class="text-success" id="eq-revenue">+Rs. 0.00</span>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span>+ Inward Capital (Financing):</span>
+                                    <span class="text-success" id="eq-injections">+Rs. 0.00</span>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span>- Operating Costs (Expenses + Salaries):</span>
+                                    <span class="text-danger" id="eq-expenses">-Rs. 0.00</span>
+                                </div>
+                                <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span>- Outward Investments (Investing):</span>
+                                    <span class="text-danger" id="eq-outward">-Rs. 0.00</span>
+                                </div>
+                                <div class="row divider-row" style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px;">
+                                    <span>Available Cash Balance:</span>
+                                    <strong class="text-neon" id="eq-cash-balance" style="font-size: 1.125rem;">Rs. 0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glassmorphism mt-4">
+                    <div class="card-header">
+                        <h2>Capital & Investments Transactions Ledger</h2>
+                        <p>Track capital injections by owners and outward investment instruments</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Transaction Type</th>
+                                        <th>Description</th>
+                                        <th>Amount (NPR)</th>
+                                        <th>Payment Source</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="capital-tbody">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Backup & Restore View -->
+            <section id="sec-backup" class="view-section">
+                <div class="dashboard-grid">
+                    <div class="card glassmorphism flex-1">
+                        <div class="card-header">
+                            <h2>Backup System Database</h2>
+                            <p>Export all accounting data, client listings, and salary information to an offline JSON file for safety</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="backup-action-box">
+                                <i data-lucide="download" class="backup-icon text-accent"></i>
+                                <h3>Download Database Copy</h3>
+                                <p>Creates a standalone `.json` file containing full current agency states. Keep this as a secure local copy.</p>
+                                <button class="btn btn-primary mt-3" id="btn-export-db">
+                                    <i data-lucide="download-cloud"></i>
+                                    <span>Export database.json</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card glassmorphism flex-1">
+                        <div class="card-header">
+                            <h2>Restore System Database</h2>
+                            <p>Upload a previously exported database copy to recover all client records and financial entries</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="backup-action-box">
+                                <i data-lucide="upload" class="backup-icon text-warning"></i>
+                                <h3>Upload Database Backup</h3>
+                                <p class="text-danger-custom"><i data-lucide="alert-triangle"></i> Warning: Restoring will overwrite all current system data.</p>
+                                <div class="file-upload-wrapper mt-3">
+                                    <input type="file" id="db-file-input" accept=".json" class="file-input-hidden">
+                                    <button class="btn btn-warning" id="btn-trigger-upload">
+                                        <i data-lucide="upload-cloud"></i>
+                                        <span>Select Backup JSON File</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add/Edit Client Modal -->
+    <div id="modal-client" class="modal">
+        <div class="modal-content glassmorphism animate-slide-up">
+            <div class="modal-header">
+                <h2 id="client-modal-title">Add New Client</h2>
+                <button class="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="form-client">
+                <input type="hidden" id="client-id">
+                <div class="form-group">
+                    <label for="client-name">Company Name / Client Name</label>
+                    <input type="text" id="client-name" required placeholder="e.g. Acme Tech Solutions">
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="client-category">Service Category</label>
+                        <select id="client-category" required>
+                            <option value="Digital Marketing Package">Digital Marketing Package</option>
+                            <option value="Graphic Design">Graphic Design</option>
+                            <option value="Videography">Videography</option>
+                            <option value="Video Editing">Video Editing</option>
+                            <option value="Social Media Marketing">Social Media Marketing</option>
+                            <option value="Website Commission">Website Commission</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="client-start-date">Contract Start Date</label>
+                        <input type="date" id="client-start-date" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="client-fee">Monthly Retainer Fee (Rs.)</label>
+                    <input type="number" id="client-fee" min="0" required placeholder="e.g. 150000">
+                </div>
+                <div class="form-group">
+                    <label for="client-email">Billing Email Contact</label>
+                    <input type="email" id="client-email" required placeholder="billing@acme.com">
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Expense Modal -->
+    <div id="modal-expense" class="modal">
+        <div class="modal-content glassmorphism animate-slide-up">
+            <div class="modal-header">
+                <h2>Log Operating Expense</h2>
+                <button class="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="form-expense">
+                <div class="form-group">
+                    <label for="expense-desc">Description / Payee</label>
+                    <input type="text" id="expense-desc" required placeholder="e.g. Google Ads Account spend">
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="expense-category">Category</label>
+                        <select id="expense-category" required>
+                            <option value="Ad Spend (Google/Meta)">Ad Spend (Google/Meta)</option>
+                            <option value="Software & SaaS Subscriptions">Software & SaaS (SaaS tools)</option>
+                            <option value="Rent & Utilities">Rent & Utilities</option>
+                            <option value="Salaries & Bonuses">Salaries & Bonuses</option>
+                            <option value="Hardware / Capital Equipment">Hardware & Assets</option>
+                            <option value="Marketing & Networking">Marketing & Design Tools</option>
+                            <option value="Office & Miscellaneous">Miscellaneous</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="expense-date">Expense Date</label>
+                        <input type="date" id="expense-date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="expense-amount">Amount (Rs.)</label>
+                        <input type="number" id="expense-amount" min="0.01" step="0.01" required placeholder="e.g. 45000.00">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="expense-source">Payment Source</label>
+                        <select id="expense-source" required>
+                            <option value="E-Banking">E-Banking</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Log Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Employee Modal -->
+    <div id="modal-employee" class="modal">
+        <div class="modal-content glassmorphism animate-slide-up">
+            <div class="modal-header">
+                <h2 id="employee-modal-title">Register Employee</h2>
+                <button class="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="form-employee">
+                <input type="hidden" id="employee-id">
+                <div class="form-group">
+                    <label for="employee-name">Employee Full Name</label>
+                    <input type="text" id="employee-name" required placeholder="e.g. Sarah Jenkins">
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="employee-role">Role / Department</label>
+                        <input type="text" id="employee-role" required placeholder="e.g. Senior Copywriter">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="employee-salary">Monthly Base Salary (Rs.)</label>
+                        <input type="number" id="employee-salary" min="0" required placeholder="e.g. 42000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="employee-email">Work Email</label>
+                    <input type="email" id="employee-email" required placeholder="sarah@agency.com">
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Execute Payroll Modal -->
+    <div id="modal-payroll" class="modal">
+        <div class="modal-content glassmorphism animate-slide-up">
+            <div class="modal-header">
+                <h2>Execute Agency Payroll</h2>
+                <button class="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="payroll-summary-block">
+                <div class="row">
+                    <span>Total Employees Configured:</span>
+                    <strong id="payroll-emp-count">0</strong>
+                </div>
+                <div class="row">
+                    <span>Active Staff Due This Period:</span>
+                    <strong id="payroll-emp-due">0</strong>
+                </div>
+                <div class="row divider-row">
+                    <span>Total Salary Cost Outflow:</span>
+                    <strong class="text-danger" id="payroll-total-outflow">Rs. 0.00</strong>
+                </div>
+            </div>
+            <form id="form-payroll">
+                <div class="form-group">
+                    <label for="payroll-date">Payroll Issue Date</label>
+                    <input type="date" id="payroll-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="payroll-account">Outflow Checking Account</label>
+                    <select id="payroll-account" required>
+                        <option value="E-Banking">E-Banking</option>
+                        <option value="Cheque">Cheque</option>
+                    </select>
+                </div>
+                <p class="notice-info mt-2">
+                    <i data-lucide="info"></i>
+                    This action will automatically register individual salary disbursements under the expenses ledger for all active employees.
+                </p>
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Issue Payroll</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Record Client Payment Modal -->
+    <div id="modal-client-payment" class="modal">
+        <div class="modal-content glassmorphism animate-slide-up">
+            <div class="modal-header">
+                <h2>Log Client Payment Received</h2>
+                <button class="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="payment-details-summary">
+                <h3 id="payment-client-name">Acme Corp</h3>
+                <p>Retainer Fee: <strong id="payment-client-rate">Rs. 0.00</strong></p>
+                <p>Status: <span id="payment-client-cycle">Month 1 Billing</span></p>
+            </div>
+            <form id="form-client-payment">
+                <input type="hidden" id="payment-client-id">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="payment-date">Date Received</label>
+                        <input type="date" id="payment-date" required>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="payment-amount">Amount Received (Rs.)</label>
+                        <input type="number" id="payment-amount" min="0" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Payment Method</label>
+                    <select id="payment-method" required>
+                        <option value="E-Banking">E-Banking</option>
+                        <option value="Cheque">Cheque</option>
+                    </select>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Record Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Asset Modal -->
+    <div id="modal-asset" class="modal">
+        <div class="modal-content glassmorphism animate-slide-up">
+            <div class="modal-header">
+                <h2>Record Capital Asset</h2>
+                <button class="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="form-asset">
+                <div class="form-group">
+                    <label for="asset-name">Asset Name / Description</label>
+                    <input type="text" id="asset-name" required placeholder="e.g. MacBook Pro M3 16-inch">
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="asset-cost">Original Cost (Rs.)</label>
+                        <input type="number" id="asset-cost" min="0" step="0.01" required placeholder="e.g. 249900.00">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="asset-depreciation">Annual Depreciation Rate (%)</label>
+                        <input type="number" id="asset-depreciation" min="0" max="100" required placeholder="e.g. 20">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="asset-purchase-date">Purchase Date</label>
+                    <input type="date" id="asset-purchase-date" required>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Asset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Set Opening Balance Modal -->
+    <div id="modal-opening-balance" class="modal">
+        <div class="modal-content glassmorphism animate-slide-up">
+            <div class="modal-header">
+                <h2>Set Opening Cash Balance</h2>
+                <button class="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="form-opening-balance">
+                <div class="form-group">
+                    <label for="opening-balance-val">Opening Cash Balance (Rs.)</label>
+                    <input type="number" id="opening-balance-val" min="0" step="0.01" required placeholder="e.g. 100000.00">
+                </div>
+                <p class="notice-info mt-2">
+                    <i data-lucide="info"></i>
+                    This represents the starting cash level in your bank accounts before logging client invoices or business expenses.
+                </p>
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Balance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Log Investment Modal -->
+    <div id="modal-investment" class="modal">
+        <div class="modal-content glassmorphism animate-slide-up">
+            <div class="modal-header">
+                <h2>Log Capital / Investment Transaction</h2>
+                <button class="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="form-investment">
+                <div class="form-group">
+                    <label for="investment-desc">Description / Payee</label>
+                    <input type="text" id="investment-desc" required placeholder="e.g. Owner Capital Injection, Fixed Deposit">
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="investment-type">Transaction Type</label>
+                        <select id="investment-type" required>
+                            <option value="inward">Inward (Capital Contribution / Equity Injection)</option>
+                            <option value="outward">Outward (Company Business Investment)</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="investment-date">Transaction Date</label>
+                        <input type="date" id="investment-date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="investment-amount">Amount (Rs.)</label>
+                        <input type="number" id="investment-amount" min="0.01" step="0.01" required placeholder="e.g. 50000.00">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="investment-source">Payment Method / Source</label>
+                        <select id="investment-source" required>
+                            <option value="E-Banking">E-Banking</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Log Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
